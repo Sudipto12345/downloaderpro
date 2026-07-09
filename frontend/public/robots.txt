@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+# Dynamic sitemap is generated from site settings — see /sitemap.xml

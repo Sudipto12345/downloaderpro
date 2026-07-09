@@ -1,0 +1,21 @@
+{
+  "proxies": [
+    {
+      "country": "BD",
+      "scheme": "socks5",
+      "host": "127.0.0.1",
+      "port": 1080,
+      "enabled": false,
+      "comment": "Bangladesh exit — enable when Tailscale/SSH tunnel is running"
+    },
+    {
+      "country": "US",
+      "scheme": "http",
+      "host": "proxy.example.com",
+      "port": 8080,
+      "username": "user",
+      "password": "CHANGE_ME",
+      "enabled": false
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/build
+**/.env
+**/.env.local
+backend/tmp
+legacy-flask
+docs
+.git
+.idea
+*.log
+**/.DS_Store

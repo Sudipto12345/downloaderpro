@@ -1,0 +1,66 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-downloadhub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-downloadhub}
+      POSTGRES_DB: ${POSTGRES_DB:-downloadhub}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-downloadhub} -d ${POSTGRES_DB:-downloadhub}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-downloadhub}:${POSTGRES_PASSWORD:-downloadhub}@db:5432/${POSTGRES_DB:-downloadhub}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in your .env file}
+      SESSION_DAYS: ${SESSION_DAYS:-30}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      PYTHON_BIN: python3
+      DEV_UNLIMITED: "false"
+      RATE_WINDOW_MINUTES: ${RATE_WINDOW_MINUTES:-15}
+      RATE_MAX_REQUESTS: ${RATE_MAX_REQUESTS:-1000}
+      YTDLP_GEO_BYPASS: ${YTDLP_GEO_BYPASS:-true}
+      YTDLP_PROXY: ${YTDLP_PROXY:-}
+      YTDLP_TIMEOUT: ${YTDLP_TIMEOUT:-60}
+      YTDLP_RETRIES: ${YTDLP_RETRIES:-5}
+      VPN_PROVIDER: ${VPN_PROVIDER:-auto}
+      VPN_COUNTRY: ${VPN_COUNTRY:-BD}
+      AUTO_RECONNECT: ${AUTO_RECONNECT:-true}
+      VERIFY_PUBLIC_IP: ${VERIFY_PUBLIC_IP:-false}
+      VPN_LOCAL_PROXY_URL: ${VPN_LOCAL_PROXY_URL:-}
+    volumes:
+      - downloads_tmp:/app/tmp
+      - ./ops/config:/app/ops/config:ro
+    expose:
+      - "4000"
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_BASE: ""
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${WEB_PORT:-80}:80"
+
+volumes:
+  pgdata:
+  downloads_tmp:

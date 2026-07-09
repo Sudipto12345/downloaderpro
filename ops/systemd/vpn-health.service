@@ -1,0 +1,14 @@
+[Unit]
+Description=DownloaderPro VPN Health Monitor
+After=vpn-manager.service
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/downloaderpro/vpn.env
+EnvironmentFile=-/opt/downloaderpro/.env
+ExecStart=/bin/bash -c 'while true; do /opt/downloaderpro/ops/scripts/health-check.sh || /opt/downloaderpro/ops/scripts/restart-network.sh; sleep 300; done'
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

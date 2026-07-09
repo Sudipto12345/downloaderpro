@@ -1,0 +1,14 @@
+[Unit]
+Description=DownloaderPro yt-dlp Network Monitor
+After=docker.service vpn-manager.service
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/downloaderpro/vpn.env
+EnvironmentFile=-/opt/downloaderpro/.env
+ExecStart=/bin/bash -c 'while true; do curl -fsS http://127.0.0.1:4000/api/health >/dev/null || echo "backend health check failed"; sleep 120; done'
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target

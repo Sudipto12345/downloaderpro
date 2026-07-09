@@ -1,0 +1,85 @@
+# Production stack for the VPS. The host's system Nginx terminates TLS and
+# reverse-proxies the two domains to these localhost-bound containers:
+#   tinydown.com        -> web      (127.0.0.1:8090)
+#   admin.tinydown.com  -> backend  (127.0.0.1:4000)
+#
+# Run:  docker compose -f docker-compose.prod.yml up -d --build
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-downloadhub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-downloadhub}
+      POSTGRES_DB: ${POSTGRES_DB:-downloadhub}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-downloadhub} -d ${POSTGRES_DB:-downloadhub}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-downloadhub}:${POSTGRES_PASSWORD:-downloadhub}@db:5432/${POSTGRES_DB:-downloadhub}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      SESSION_DAYS: ${SESSION_DAYS:-30}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://tinydown.com}
+      PYTHON_BIN: python3
+      # Geo-restriction handling for yt-dlp (see .env.example)
+      YTDLP_GEO_BYPASS: ${YTDLP_GEO_BYPASS:-true}
+      YTDLP_GEO_BYPASS_COUNTRY: ${YTDLP_GEO_BYPASS_COUNTRY:-}
+      YTDLP_PROXY: ${YTDLP_PROXY:-}
+      YTDLP_COOKIES: ${YTDLP_COOKIES:-}
+      YTDLP_TIMEOUT: ${YTDLP_TIMEOUT:-60}
+      YTDLP_RETRIES: ${YTDLP_RETRIES:-5}
+      YTDLP_CONCURRENT: ${YTDLP_CONCURRENT:-2}
+      # VPN / geo-unlock framework
+      VPN_PROVIDER: ${VPN_PROVIDER:-auto}
+      VPN_COUNTRY: ${VPN_COUNTRY:-BD}
+      AUTO_RECONNECT: ${AUTO_RECONNECT:-true}
+      VERIFY_PUBLIC_IP: ${VERIFY_PUBLIC_IP:-true}
+      VPN_LOCAL_PROXY_URL: ${VPN_LOCAL_PROXY_URL:-}
+      VPN_OPS_DIR: /opt/downloaderpro/ops/scripts
+      VPN_PROVIDERS_FILE: /etc/downloaderpro/vpn.providers.json
+      VPN_COUNTRIES_FILE: /etc/downloaderpro/countries.json
+      VPN_PROXY_CONFIG: /etc/downloaderpro/proxy.json
+      UPLOAD_PUBLIC_BASE: ${UPLOAD_PUBLIC_BASE:-https://admin.tinydown.com}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - downloads_tmp:/app/tmp
+      - uploads_data:/app/uploads
+      - app_data:/app/data
+      - ./ops/config:/app/ops/config:ro
+    ports:
+      - "127.0.0.1:4000:4000"
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_BASE: ${VITE_API_BASE:-https://admin.tinydown.com}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:8090:80"
+
+volumes:
+  pgdata:
+  downloads_tmp:
+  uploads_data:
+  app_data:

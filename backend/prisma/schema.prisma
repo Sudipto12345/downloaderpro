@@ -1,0 +1,157 @@
+// DownloadHub Pro database schema (PostgreSQL via Prisma)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  guest
+  user
+  premium
+  admin
+}
+
+enum PlanId {
+  free
+  pro
+  business
+}
+
+enum MenuType {
+  header
+  footer
+}
+
+enum AdPlacement {
+  header_banner
+  below_search
+  in_content
+  footer
+  popup
+  sticky_bar
+  direct_link
+  social_bar
+}
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         Role       @default(user)
+  planId       PlanId     @default(free)
+  banned       Boolean    @default(false)
+  totpSecret   String?
+  totpEnabled  Boolean    @default(false)
+  totpExempt   Boolean    @default(false)
+  isSuperAdmin Boolean    @default(false)
+  isDeveloper  Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+
+  downloads    Download[]
+  favorites    Favorite[]
+
+  @@map("users")
+}
+
+model Download {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  platform  String
+  url       String
+  quality   String
+  thumbnail String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("downloads")
+}
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  platform  String
+  url       String
+  thumbnail String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, url])
+  @@index([userId])
+  @@map("favorites")
+}
+
+model Setting {
+  key   String @id
+  value Json
+
+  @@map("settings")
+}
+
+model Page {
+  id              String   @id @default(uuid())
+  slug            String   @unique
+  title           String
+  metaDescription String   @default("")
+  keywords        String[] @default([])
+  intro           String   @default("")
+  sections        Json     @default("[]")
+  showDownloadBar Boolean  @default(false)
+  published       Boolean  @default(true)
+  navLabel        String?
+  order           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("pages")
+}
+
+model MenuItem {
+  id         String    @id @default(uuid())
+  menu       MenuType
+  label      String
+  href       String
+  column     Int?
+  order      Int       @default(0)
+  openInNew  Boolean   @default(false)
+  parentId   String?
+  createdAt  DateTime  @default(now())
+
+  parent     MenuItem?  @relation("MenuChildren", fields: [parentId], references: [id], onDelete: SetNull)
+  children   MenuItem[] @relation("MenuChildren")
+
+  @@index([menu, order])
+  @@index([parentId])
+  @@map("menu_items")
+}
+
+model AdSlot {
+  id        String      @id @default(uuid())
+  placement AdPlacement @unique
+  enabled   Boolean     @default(false)
+  code      String      @default("")
+  updatedAt DateTime    @updatedAt
+
+  @@map("ad_slots")
+}
+
+model DailyStat {
+  date          String @id
+  count         Int    @default(0)
+  pageViews     Int    @default(0)
+  adClicks      Int    @default(0)
+  adImpressions Int    @default(0)
+
+  @@map("daily_stats")
+}

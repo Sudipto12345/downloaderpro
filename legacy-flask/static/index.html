@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DownloaderPro — YouTube, TikTok, Instagram & Facebook Downloader</title>
+  <meta name="description" content="Free open-source video & image downloader for YouTube, TikTok, Instagram and Facebook." />
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬇️</text></svg>" />
+</head>
+<body>
+  <div class="bg-glow"></div>
+
+  <header class="site-header">
+    <div class="brand">
+      <span class="logo">⬇</span>
+      <span class="brand-name">Downloader<span class="accent">Pro</span></span>
+    </div>
+    <nav class="platforms">
+      <span title="YouTube">▶ YouTube</span>
+      <span title="TikTok">♪ TikTok</span>
+      <span title="Instagram">◎ Instagram</span>
+      <span title="Facebook">f Facebook</span>
+      <span class="muted">+1000 more</span>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Download videos &amp; images from anywhere</h1>
+      <p class="subtitle">
+        Paste a link from YouTube, TikTok, Instagram, Facebook and more.
+        Free, fast and powered by open-source <code>yt-dlp</code>.
+      </p>
+
+      <form id="search-form" class="search-box" autocomplete="off">
+        <input
+          id="url-input"
+          type="text"
+          placeholder="Paste a video or image URL here…"
+          aria-label="Media URL"
+          required
+        />
+        <button type="submit" id="fetch-btn">
+          <span class="btn-text">Fetch</span>
+          <span class="spinner" hidden></span>
+        </button>
+      </form>
+
+      <div class="hint">Tip: works with profiles, reels, shorts, posts and photos.</div>
+    </section>
+
+    <section id="message" class="message" hidden></section>
+
+    <section id="result" class="result" hidden>
+      <div class="result-media">
+        <img id="thumb" alt="thumbnail" />
+        <span id="duration" class="duration-badge" hidden></span>
+      </div>
+      <div class="result-info">
+        <div id="extractor" class="pill"></div>
+        <h2 id="title"></h2>
+        <p id="uploader" class="uploader"></p>
+
+        <div class="options">
+          <label for="quality">Choose format / quality</label>
+          <div class="select-row">
+            <select id="quality"></select>
+            <button id="download-btn" class="primary">
+              <span class="btn-text">Download</span>
+              <span class="spinner" hidden></span>
+            </button>
+          </div>
+          <p id="dl-note" class="dl-note"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="feature"><h3>🎞️ All formats</h3><p>Pick resolution from 144p up to 4K, or grab audio &amp; images.</p></div>
+      <div class="feature"><h3>🔓 No login</h3><p>No account, no ads, no tracking. Just paste and go.</p></div>
+      <div class="feature"><h3>🧩 Open source</h3><p>Built on yt-dlp &amp; Flask — fully self-hosted.</p></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      DownloaderPro · For personal use only. Respect copyright &amp; each
+      platform's Terms of Service. Powered by
+      <a href="https://github.com/yt-dlp/yt-dlp" target="_blank" rel="noopener">yt-dlp</a>.
+    </p>
+  </footer>
+
+  <script src="/script.js"></script>
+</body>
+</html>

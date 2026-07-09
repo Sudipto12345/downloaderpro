@@ -1,0 +1,17 @@
+{
+  "providers": [
+    { "id": "surfshark", "enabled": true, "priority": 1, "countries": ["*"], "credentialEnv": ["SURFSHARK_USER", "SURFSHARK_PASSWORD"] },
+    { "id": "nordvpn", "enabled": true, "priority": 2, "countries": ["*"], "credentialEnv": ["NORDVPN_TOKEN"] },
+    { "id": "protonvpn", "enabled": true, "priority": 3, "countries": ["*"], "credentialEnv": ["PROTONVPN_USER", "PROTONVPN_PASSWORD"] },
+    { "id": "mullvad", "enabled": true, "priority": 4, "countries": ["*"], "credentialEnv": ["MULLVAD_ACCOUNT"] },
+    { "id": "pia", "enabled": true, "priority": 5, "countries": ["*"], "credentialEnv": ["PIA_USER", "PIA_PASSWORD"] },
+    { "id": "expressvpn", "enabled": true, "priority": 6, "countries": ["*"], "credentialEnv": ["EXPRESSVPN_ACTIVATION_CODE"] },
+    { "id": "http-proxy", "enabled": true, "priority": 7, "countries": ["*"], "credentialEnv": ["YTDLP_PROXY"] },
+    { "id": "socks5-proxy", "enabled": true, "priority": 8, "countries": ["*"], "credentialEnv": ["YTDLP_PROXY", "VPN_LOCAL_PROXY_URL"] },
+    { "id": "custom-wireguard", "enabled": true, "priority": 9, "countries": ["BD", "*"], "credentialEnv": ["CUSTOM_WG_BD_CONFIG", "CUSTOM_WG_CONFIG"] },
+    { "id": "custom-openvpn", "enabled": true, "priority": 10, "countries": ["BD", "*"], "credentialEnv": ["CUSTOM_OVPN_BD_CONFIG", "CUSTOM_OVPN_CONFIG"] },
+    { "id": "wireguard", "enabled": true, "priority": 11, "countries": ["*"], "credentialEnv": ["WG_CONFIG_PATH"] },
+    { "id": "openvpn", "enabled": true, "priority": 12, "countries": ["*"], "credentialEnv": ["OPENVPN_CONFIG_DIR"] },
+    { "id": "tailscale", "enabled": true, "priority": 13, "countries": ["BD", "*"], "credentialEnv": ["TAILSCALE_AUTH_KEY", "TAILSCALE_EXIT_NODE", "TAILSCALE_EXIT_NODE_BD"] }
+  ]
+}

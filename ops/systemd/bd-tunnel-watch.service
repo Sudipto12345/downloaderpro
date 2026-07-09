@@ -1,0 +1,12 @@
+[Unit]
+Description=TinyDown Bangladesh tunnel port watcher
+After=network-online.target ssh.service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'while true; do if ss -tln | grep -q ":1080 "; then echo "$(date -Iseconds) BD tunnel UP on :1080"; else echo "$(date -Iseconds) BD tunnel DOWN - waiting for bd-exit-client.sh"; fi; sleep 60; done'
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
