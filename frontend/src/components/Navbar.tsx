@@ -148,20 +148,43 @@ export function Navbar() {
 
       {open && (
         <div className="max-h-[70vh] overflow-y-auto border-t border-border/40 px-4 py-4 md:hidden">
-          <nav className="flex flex-col gap-1">
-            {orderedTools.map((tool) => (
-              <Link
-                key={tool.slug}
-                to={tool.slug === "video-downloader" ? "/" : `/${tool.slug}`}
-                onClick={() => setOpen(false)}
-                className="rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-secondary"
-              >
-                {tool.platform}
+          <nav className="flex flex-col gap-1.5">
+            {topLevelHeaderItems.map((item) => {
+              const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              const children = childHeaderItems.filter((child) => child.parentId === item.id);
+              return (
+                <div key={item.id} className="flex flex-col gap-1">
+                  <Link
+                    to={item.href}
+                    onClick={() => setOpen(false)}
+                    className={`rounded-xl px-3 py-2.5 text-sm font-medium ${
+                      active ? "bg-primary/10 text-primary" : "hover:bg-secondary text-foreground"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                  {children.length > 0 && (
+                    <div className="ml-4 border-l border-border pl-3 flex flex-col gap-1">
+                      {children.map((child) => (
+                        <Link
+                          key={child.id}
+                          to={child.href}
+                          onClick={() => setOpen(false)}
+                          className="rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            <div className="border-t border-border/30 my-2 pt-2">
+              <Link to="/tools" onClick={() => setOpen(false)} className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-primary hover:bg-secondary">
+                All tools →
               </Link>
-            ))}
-            <Link to="/tools" onClick={() => setOpen(false)} className="rounded-xl px-3 py-2.5 text-sm text-primary">
-              All tools
-            </Link>
+            </div>
           </nav>
         </div>
       )}

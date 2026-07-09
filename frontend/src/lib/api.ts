@@ -119,11 +119,25 @@ export async function streamDownloadToBrowser(
   let received = 0;
   let lastTick = Date.now();
   let displayPercent = 2;
+  const startDownloadTime = Date.now();
 
   const formatBytes = (n: number) => {
     if (n < 1024) return `${n} B`;
     if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
     return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const formatSpeed = (bytesPerSec: number) => {
+    if (bytesPerSec < 1024) return `${bytesPerSec.toFixed(0)} B/s`;
+    if (bytesPerSec < 1024 * 1024) return `${(bytesPerSec / 1024).toFixed(1)} KB/s`;
+    return `${(bytesPerSec / (1024 * 1024)).toFixed(1)} MB/s`;
+  };
+
+  const formatEta = (seconds: number) => {
+    if (seconds < 0 || isNaN(seconds) || !isFinite(seconds)) return "00:00";
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
   while (true) {
@@ -140,11 +154,25 @@ export async function streamDownloadToBrowser(
         displayPercent = Math.min(92, displayPercent + 4 + Math.random() * 6);
         lastTick = now;
       }
+
+      const elapsedSeconds = (now - startDownloadTime) / 1000;
+      const speedBytesPerSec = elapsedSeconds > 0 ? received / elapsedSeconds : 0;
+      const speed = speedBytesPerSec > 0 ? formatSpeed(speedBytesPerSec) : undefined;
+      
+      let eta: string | undefined;
+      if (total > 0 && speedBytesPerSec > 0) {
+        const remainingBytes = total - received;
+        const etaSeconds = Math.round(remainingBytes / speedBytesPerSec);
+        eta = formatEta(etaSeconds);
+      }
+
       onProgress?.({
         status: "downloading",
         phase: total > 0 ? `Downloading… ${formatBytes(received)}` : `Downloading… ${formatBytes(received)} received`,
         percent: displayPercent,
         totalSize: total > 0 ? formatBytes(total) : formatBytes(received),
+        speed,
+        eta,
       });
     }
   }

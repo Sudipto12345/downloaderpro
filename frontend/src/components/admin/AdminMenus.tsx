@@ -5,6 +5,7 @@ import {
   adminDeleteMenuItem,
   adminGetMenus,
   adminUpdateMenuItem,
+  adminResetDefaultMenus,
   type AdminMenuItem,
 } from "@/lib/db";
 import {
@@ -121,6 +122,18 @@ export default function AdminMenus() {
     }
   };
 
+  const handleReset = async () => {
+    if (!confirm("Are you sure you want to reset all navigation menus to defaults? This will erase all current custom links.")) return;
+    setLoading(true);
+    try {
+      await adminResetDefaultMenus();
+      load();
+    } catch {
+      alert("Failed to reset defaults.");
+      setLoading(false);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this menu item?")) return;
     await adminDeleteMenuItem(id);
@@ -139,9 +152,14 @@ export default function AdminMenus() {
         title="Navigation Menus"
         description="Manage header links and footer columns. Add dropdown submenus by selecting a parent item."
         actions={
-          <Button onClick={() => { setAddOpen(true); setForm((f) => ({ ...f, menu: activeMenu })); }} size="sm">
-            <Plus className="mr-1.5 h-4 w-4" /> Add item
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleReset} variant="outline" size="sm">
+              Reset Defaults
+            </Button>
+            <Button onClick={() => { setAddOpen(true); setForm((f) => ({ ...f, menu: activeMenu })); }} size="sm">
+              <Plus className="mr-1.5 h-4 w-4" /> Add item
+            </Button>
+          </div>
         }
       />
 

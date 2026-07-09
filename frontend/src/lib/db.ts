@@ -514,6 +514,10 @@ export function adminDeleteMenuItem(id: string): Promise<{ ok: boolean }> {
   return apiClient.delete(`/api/admin/menus/${id}`);
 }
 
+export function adminResetDefaultMenus(): Promise<AdminMenuItem[]> {
+  return apiClient.post<AdminMenuItem[]>("/api/admin/menus/reset-defaults");
+}
+
 export function adminGetPages(): Promise<AdminPageRecord[]> {
   return apiClient.get<AdminPageRecord[]>("/api/admin/pages");
 }

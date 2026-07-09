@@ -469,6 +469,61 @@ adminRouter.delete("/menus/:id", async (req, res) => {
   }
 });
 
+adminRouter.post("/menus/reset-defaults", async (_req, res) => {
+  try {
+    // Delete all existing menu items
+    await prisma.menuItem.deleteMany();
+
+    // Default Header menu items
+    const header = [
+      { label: "All-in-One", href: "/", order: 0 },
+      { label: "YouTube", href: "/youtube-downloader", order: 1 },
+      { label: "TikTok", href: "/tiktok-downloader", order: 2 },
+      { label: "Instagram", href: "/instagram-downloader", order: 3 },
+      { label: "Facebook", href: "/facebook-downloader", order: 4 },
+      { label: "X / Twitter", href: "/twitter-downloader", order: 5 },
+    ];
+
+    for (const item of header) {
+      await prisma.menuItem.create({
+        data: { menu: "header", label: item.label, href: item.href, order: item.order },
+      });
+    }
+
+    // Default Footer menu items
+    const footer = [
+      { label: "All tools", href: "/tools", column: 1, order: 0 },
+      { label: "How it works", href: "/#how", column: 1, order: 1 },
+      { label: "About", href: "/about", column: 2, order: 0 },
+      { label: "Contact", href: "/contact", column: 2, order: 1 },
+      { label: "FAQ", href: "/faq", column: 2, order: 2 },
+      { label: "Privacy", href: "/privacy", column: 3, order: 0 },
+      { label: "Terms", href: "/terms", column: 3, order: 1 },
+      { label: "Disclaimer", href: "/disclaimer", column: 3, order: 2 },
+    ];
+
+    for (const item of footer) {
+      await prisma.menuItem.create({
+        data: {
+          menu: "footer",
+          label: item.label,
+          href: item.href,
+          column: item.column,
+          order: item.order,
+        },
+      });
+    }
+
+    const items = await prisma.menuItem.findMany({
+      orderBy: [{ menu: "asc" }, { order: "asc" }],
+    });
+    return res.json(items);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to reset navigation menus." });
+  }
+});
+
+
 /* ── CMS Pages ─────────────────────────────────────────────────── */
 
 adminRouter.get("/pages", async (_req, res) => {
