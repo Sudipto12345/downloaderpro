@@ -15,9 +15,11 @@ import {
   Radar,
   X,
 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { cn } from "@/lib/utils";
+import { apiClient } from "@/lib/apiClient";
 
 export type AdminTab =
   | "overview"
@@ -122,6 +124,44 @@ function SidebarNav({
   );
 }
 
+interface SystemInfo {
+  appVersion: string;
+  ytdlpVersion: string;
+  ffmpegVersion: string;
+  nodeVersion: string;
+  platform: string;
+}
+
+function SystemVersions() {
+  const [info, setInfo] = useState<SystemInfo | null>(null);
+
+  useEffect(() => {
+    apiClient
+      .get<SystemInfo>("/api/admin/system-info")
+      .then(setInfo)
+      .catch(() => {});
+  }, []);
+
+  if (!info) return null;
+
+  return (
+    <div className="mt-4 border-t border-slate-800 pt-3 text-[10px] text-slate-500 space-y-1">
+      <div className="flex justify-between">
+        <span>App Version:</span>
+        <span className="font-semibold text-slate-400">{info.appVersion}</span>
+      </div>
+      <div className="flex justify-between">
+        <span>yt-dlp:</span>
+        <span className="font-semibold text-slate-400">{info.ytdlpVersion}</span>
+      </div>
+      <div className="flex justify-between flex-wrap gap-x-2">
+        <span>ffmpeg:</span>
+        <span className="font-semibold text-slate-400 truncate max-w-[120px]">{info.ffmpegVersion}</span>
+      </div>
+    </div>
+  );
+}
+
 export function AdminShell({
   activeTab,
   onTabChange,
@@ -166,6 +206,7 @@ export function AdminShell({
           >
             <LogOut className="h-4 w-4" /> Sign out
           </button>
+          <SystemVersions />
         </div>
       </aside>
 
@@ -186,6 +227,16 @@ export function AdminShell({
               onNavigate={onMobileClose}
               isDeveloper={isDeveloper}
             />
+            <div className="border-t border-slate-800 p-4 mt-auto">
+              <button
+                type="button"
+                onClick={() => logout()}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
+              >
+                <LogOut className="h-4 w-4" /> Sign out
+              </button>
+              <SystemVersions />
+            </div>
           </aside>
         </div>
       )}

@@ -434,3 +434,30 @@ function humanDuration(seconds?: number | null): string | null {
 function cleanError(msg: string): string {
   return friendlyYtDlpError(msg);
 }
+
+export function getYtdlpVersion(): Promise<string> {
+  return new Promise((resolve) => {
+    const proc = spawn(config.pythonBin, ["-m", "yt_dlp", "--version"], { windowsHide: true });
+    let stdout = "";
+    proc.stdout.on("data", (d) => (stdout += d.toString()));
+    proc.on("error", () => resolve("unknown"));
+    proc.on("close", (code) => {
+      resolve(code === 0 ? stdout.trim() : "unknown");
+    });
+  });
+}
+
+export function getFfmpegVersion(): Promise<string> {
+  return new Promise((resolve) => {
+    const proc = spawn("ffmpeg", ["-version"], { shell: true });
+    let stdout = "";
+    proc.stdout.on("data", (d) => (stdout += d.toString()));
+    proc.on("error", () => resolve("unknown"));
+    proc.on("close", (code) => {
+      if (code !== 0) return resolve("unknown");
+      const match = stdout.match(/version\s+([^\s,]+)/);
+      resolve(match ? match[1] : "unknown");
+    });
+  });
+}
+

@@ -11,7 +11,7 @@ import { requireDeveloper } from "../middleware/auth.js";
 import { getTempStorageInfo, purgeTempStorage } from "../lib/storage.js";
 import { getYtdlpGeoConfig, setYtdlpGeoConfig, type YtdlpGeoConfig } from "../lib/ytdlpConfig.js";
 import { invalidateNetworkRouteCache } from "../lib/networkRoute.js";
-import { getInfo } from "../services/ytdlp.js";
+import { getInfo, getYtdlpVersion, getFfmpegVersion } from "../services/ytdlp.js";
 import { requireAdmin } from "../middleware/auth.js";
 import { DEFAULT_TOOL_SLUGS, getToolOrder, setToolOrder } from "../lib/toolsOrder.js";
 import { normalizeGscPayload } from "../lib/gsc.js";
@@ -777,3 +777,20 @@ adminRouter.get("/sitemap-preview", async (_req, res) => {
   const xml = await buildSitemapXml();
   res.type("application/xml").send(xml);
 });
+
+adminRouter.get("/system-info", async (_req, res) => {
+  try {
+    const ytdlpVer = await getYtdlpVersion();
+    const ffmpegVer = await getFfmpegVersion();
+    return res.json({
+      appVersion: "v1.2.0",
+      ytdlpVersion: ytdlpVer,
+      ffmpegVersion: ffmpegVer,
+      nodeVersion: process.version,
+      platform: process.platform,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to load system info." });
+  }
+});
+
